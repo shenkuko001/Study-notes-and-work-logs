@@ -15,6 +15,3 @@ example : #!/bin/bash
 shell 使用分号或者换行符来分隔命令序列
 
 #号用于注释代码
-
-
-he咯
