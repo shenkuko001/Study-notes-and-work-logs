@@ -1,0 +1,17 @@
+shebang 用来定义解释器，只能放在shell脚本第一行
+example : #!/bin/bash 
+
+脚本的执行有两种：1、 直接作为bash命令的参数  bash test.sh
+                2、 赋予脚本执行权限，将其变成可执行文件
+
+
+1.bash test.sh
+
+2.chmod 755 test.sh  （chmod a+x test.sh 'a+x'表示给所有人加上可执行权限）
+    ./test.sh
+
+~表示主目录，通常/home/user ，如果是root 则是/root
+
+shell 使用分号或者换行符来分隔命令序列
+
+#号用于注释代码
