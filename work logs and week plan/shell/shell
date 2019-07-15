@@ -15,3 +15,77 @@ example : #!/bin/bash
 shell 使用分号或者换行符来分隔命令序列
 
 #号用于注释代码
+
+打印 感叹号这样的特殊字符时候，加转义斜杠\或者使用单引号
+echo "hello \! "
+echo 'hello !'  
+
+
+变量赋值
+var="value"
+注意！var = "value" 是等值测试，而var="value"是赋值操作，区别在于=号两边是否有空格
+
+使用变量：echo $var 或者 echo ${var}
+
+单引号包裹相当于纯文本，双引号里如果有$，则变量会被解析
+
+添加环境变量：
+    vi /etc/profile
+    export PATH=$PATH:/opt/software/bin
+    添加完毕后source /etc/profile
+
+运算：
+    let result=n1+n2
+    let n1++
+    let n2--
+    result=$[$n1+50]
+    result=$((n1+52))
+以上仅支持整形
+
+文件描述符：
+    stdin | stdout | stderr
+    命令完成后，成功则返回0，失败则返回其他数字
+    可以在命令结束后echo $? 来查看执行情况
+
+    echo "hello" > test.txt 文本保存至test.txt
+    echo "hello" >> test.txt 文本追加至test.txt
+    若文件不存在，会新建一个文本
+    
+    ls + 2>> test.txt
+    ls + 这个命令会报错，使用2>>可以把错误追加到test.txt
+    可以将错误和输出分别重定向到不同文件
+    cmd 2>>stderr.txt 1>>stdout.txt
+    如果想定向到同一个文件可以：
+        cmd &>> log.txt
+
+    如果想输出命令的同时，将其保存下来可以使用tee命令
+    cat a* | tee -a out.txt | cat -n
+    这里stdout 作为 tee 的输入，写入至out.txt，同时第二段的stdout作为cat -n的输出
+
+    stderr的输出都被输出至/dev/null中，这是特殊设备文件，丢弃任何接受的数据
+
+    cmd < file  可以将文件重定向至命令
+
+    cat<<EOF>>log.txt  遇到EOF便停止输入，并将结果重定向至log.txt
+
+    可以用exec 自定义文件描述符。
+
+数组及关联数组
+    array1=(adam eve richard)
+    echo ${array1[2]} 打印数组第三个值
+    echo ${array1[*]} 打印数组内所有元素
+    echo ${#array1[*]} 打印数组内个数
+
+    bash4.0之后支持 字符索引，但是要declare
+    declare -A str_array
+    str_array=([string1]=123 [string2]=321)
+    echo ${str_array[string1]}
+
+别名：
+    使用alias 创建别名：
+        alias print="echo"
+        print hello >  hello.txt
+    想要别名永久生效的话，要写入~/.bashrc中
+    echo 'alias print="echo"' >> ~/.bashrc
+    取消别名：unalias print
+    如果自定义的命令和保留字重合，可以用转义斜杆来使用原先的意义 \echo

@@ -1,0 +1,207 @@
+语言特性：
+    自动垃圾回收
+    函数多返回值
+    并发编程
+    面向消息编程，通过使用消息而不是共享内存来进行并发编程
+
+源文件第一行必须指明这个文件属于哪个包，如package main
+注意，大写开头的标识符可以被外部包使用（相当于公有变量）小写开头的对包外不可见（相当于私有）
+但是在包内部使用没有什么区别
+注意，花括号不能单独放一行。
+Go中一行表示一个语句的结束，强行想写在一行可以用分号分隔。
+
+数据类型：
+    数字、布尔、字符串、派生类型（指针、数组、map、结构化、接口、函数）
+    数字:
+        整型：(u)int (8,16,32,64)  255 65535 42亿 2^63-1
+        浮点数：float32 float64
+        其他数字类型：byte(类似uint8)、rune(类似int32)、uint(32或64)、int(uint)、uintptr(无符号整型，用于存放指针)
+    字符串类型在go里是一个结构，包含底层数组的指针和长度。所以unsafe.Sizeof会有两部分字节8+8=16
+
+如果数字定义后没有赋值就为0（而不是nil），如果布尔类型定义后没有赋值就是false，其他派生类型定义不赋值就是nil
+
+可以由程序自行判断变量类型：var v_bool = true 
+
+intVal := 1(:=是个声明语句，如果前面声明过了会报编译错误。并且会自动根据右边值来推导类型) 
+var f string = "hello " 相当于 f:="hello"
+可以声明多个变量：
+    var v1,v2 int
+    v1,v2 = 1,2
+
+    var v1, v2, v3 = true,1,'string1' //类型自动判断
+    注意，go中的单引号和双引号意义不同，单引号表示特殊类型rune。双引号才是字符串，可以转义，不能多行
+    反引号可以多行，表示原生字符串，不支持转义。
+    v1, v2 := 1, 2 //这种格式只能在函数体内出现 
+
+
+var （ 
+    v1 int
+    v2 string
+）
+
+常量：
+    const num int = 4;
+    注意const 不能使用:= 来赋值
+    常量可以是字符，字符串，布尔值，或数值。无需指定类型，自动判断
+    const (
+        a = "abc"
+        b = len(a)
+        c = unsafe.Sizeof(a)
+    )
+
+    const后面可以带len、cap、unsafe.Sizeof等函数，但是只能是内置的函数
+    iota是特殊常量，在const中重置为零，并随着行数增加而自增，可理解为const语句中的行索引
+    在定义常数组的时候，如果不提供初始值，就会沿用上一行的表达式
+
+运算符：
+    逻辑运算符： &&  ||  ！
+
+位运算符
+    & | ^
+
+go没有三目运算符
+
+if bool {
+    //code
+} else {
+    // something
+}
+if 的条件表达式前面可以执行一个简单的语句，变量作用域仅在if内，用分号;与条件表达式分隔
+if v:=x*2;v>=100{return v}else{return v} //  在else语句块里也可以使用v 变量
+
+var grade string = "A"
+var marks int = 90
+switch marks {
+    case 100: grade = "A"
+    case 60,50,40:grade ="C"
+    default :grade = "D"
+}
+switch{
+    case grade=="A":
+        fmt.Printf('good')
+    case grade=="C":
+        fmt.Printf('not good')
+    default:
+        fmt.Printf('ok')
+}
+
+如果一条case 里带有fallthrough关键字，那么不管下一条case是否为true都会被执行
+switch同样可以带一句简单的语句：
+    switch tar:=1;{
+        case...
+    }
+
+
+for(init;condition;post){
+    //code
+}
+先执行init，判断是否符合condition，执行code，然后执行post，继续判断condition
+
+for condition {}
+for {}
+for的range格式可以对 slice、map、数组、字符串等进行循环迭代
+    for key,value := range oldMap{
+        newMap[key] = value
+    }
+
+goto 可以跳转到指定代码块，但不建议使用
+
+函数定义：
+    func swap(x,y string)(string, string){
+        return y,x
+    }
+    可以对返回值进行命名，return 就不需要带具体的变量名了:
+    func test(a int)(name string, age int){
+        name="adam"
+        age = a
+        return 
+    }
+
+    函数引用传递：将实际变量的地址传入函数，函数中对参数的修改将影响实际变量
+    func swap(x *int, y *int){
+        var temp int
+        temp = *x
+        *x = *y
+        *y = temp
+    }
+    调用：  swap(&a,&b)
+
+
+    func main(){
+        getx :=func(x float64) float64{//getx函数变量
+            return math.Sqrt(x)
+        }
+    }
+    fmt.Printf(getx(9))
+
+    type cb func(int) int 可以声明一个函数类型
+
+    闭包：
+        func add(x1,x2 int) func(x3 int,x4 int)(int,int,int){
+            i:=0
+            return func(x3 int,x4 int)(int,int,int){
+                i++
+                return i,x1+x2,x3+x4
+            }
+        }
+
+方法就是包含了接受者的函数：
+
+
+定义结构体：
+    type Circle struct{
+        radius float64
+    }
+
+    func main(){
+        var c1 Circle
+        c1.radius=100
+        fmt.Printf(c1.getArea())
+    }
+
+    func (c Circle) getArea() float{
+        return 3.14*c.radius*c.radius
+    }
+
+数组定义方式：
+    数组的长度是这个类型的一部分，因此数组不能改变大小。改变大小的叫切片
+    var my_array [100] float32  定义一个列表长度为100，类型为float32 的数组
+    初始化
+    var my_array = [5]int{1,2,3,4,5}
+
+    var balance = [...]int{1,2,3,4} // 忽略中括号的数字，go会自动设置大小
+    多维数组定义：
+        var multi_array = [2][2] int{
+            {1,2},
+            {3,4}, //注意这里必须加上逗号，因为最后一行}不能单独成行，
+        }
+    数组元素访问：  
+        val := multi_array[0][0]
+        或者
+        var value int = multi_array[0][0]
+
+    数组作为函数参数
+        void myFunction (arr [10]int) //指定了长度
+
+        void myFunction2(arr []int) //存疑，Go的数组作为函数参数传入必须 指定长度？？？
+
+切片：
+    prime := [5]int{1,2,3,4,5}
+    var slice1 []int = prime[1:4] // {2,3,4} 注意前包后不包
+
+defer 可以将函数压栈，直到外层函数返回之后才调用。
+defer 、 panic 、 recover 回头再看
+
+
+&操作表示取内存地址，*p表示把p指针指向地址的值取出来。
+struct中使用指针的意义：不使用指针的时候，值的传递都是通过副本进行，随意修改不会影响本身。使用指针可以修改本身。
+
+结构体：
+    结构体就是一组字段
+    type Students struct { 
+        name string
+        age int
+    }
+    stu = Students{"adam",19} // stu打印出来为 {"adam" 19} 可以通过{"adam" 19}.name取到adam
+    stu2 = Students{name:"eve"} // 创建一个name为eve的struct，age属性被隐式赋予为0。
+    stu3 = Students{age:19}//创建一个age 为19的struct ,name 属性被隐式赋予为""
