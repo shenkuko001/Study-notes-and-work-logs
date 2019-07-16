@@ -253,7 +253,7 @@ struct中使用指针的意义：不使用指针的时候，值的传递都是�
 
 
 接口类型：
-    接口类型是一组有共性的方法定义的集合
+    接口类型是一组有共性的方法定义的集合，想要使用接口 结构体必须完整实现接口里的函数。
     type People interface{
         getName() string
     }
@@ -274,11 +274,81 @@ struct中使用指针的意义：不使用指针的时候，值的传递都是�
     }
 
     func main(){
-        var p People = Men{"adam"}//第一种方式，隐式实现
+        var p People = Men{"adam"}//第一种方式，隐式实现，需要Men已经实现了接口，如果没实现会报错。
         p.getName()
         fmt.Printf(Women{"eve"}.getName()}//第二种方式
     }
 
-    接口值？？
+    接口也有值，接口值可以看做包含值和类型的元组。
+    类型断言：用来判断接口值和类型
+        v,ok := i.(string) // v 为value，ok为bool，i是接口的实例，string是判断是否为字符串的参数。
+
+    类型选择：
+        func do(i interface{}){
+            switch v:= i.(type){
+                case int:
+                    fmt.Printf("int type")
+                case string:
+                    fmt.Printf("string type")
+            }
+        }
+    结构体绑定接口的时候可以用指针接收者
+    接口值零值为nil
+    错误：
+        type error interface {
+            Error() string
+        }
+        以上是go内置的错误接口，可以通过实现error接口类型来生成错误信息
+        func test(f float)(float,error){
+            if f<0{
+                return 0,errors.New{"smaller than zero"}//这里error.New可以返回错误信息
+            }
+        }
+        result, err := test(-1.2)
+        if err != nil{
+            fmt.Printf(err)
+        }
 
 并发：
+    使用go 关键字来开启goroutine，一个程序中所有的goroutine共享一个地址空间。
+    goroutine是轻量级的线程
+    通道channel用于传递数据，两个goroutine之间可以传递一个值来进行同步和通信
+    如果不指定方向则为双向通道。
+    ch <- v // v发送到通道ch
+    v := <- ch // 通道ch 赋值给v
+    默认情况下，发送和接受操作在另一端准备好之前都会阻塞，这使得Go在没有显式锁的情况下进行同步。
+
+    通道的声明：
+        ch := make(chan int,100) // 100为缓冲区大小，可以不指定
+        缓冲区满了后会阻塞，报死锁错误
+        通道要及时把内容赋值出去。
+    通道可以通过close 来关闭，只有发送者能关闭信道，接收者不能。
+    向关闭的信道发送数据会引发panic
+    v ，ok =<- ch
+    如果关闭了，ok 为false
+
+    for i:=range c{} //该语句会不断从信道接受值，直到被关闭
+    一般来讲通道无需关闭，只有在需要告诉接收者没数据了才有必要关闭。
+    如果使用range遍历，但通道却不关闭，那么range会一直阻塞。
+
+    select 语句可以阻塞到某个分支可以继续执行为止，如果多个分支准备好时候会随机选择一个来执行。
+    如果selct中其他分支都没有准备好，default就会执行。
+        func main(){
+            tick := time.Tick(100 * time.Millisecond)
+            boom := time.After(500 * time.Millisecond)
+
+            for {
+                select {
+                    case <-tick:
+                        fmt.Println("tick")
+                    case <-boom：
+                        fmt.Println("Boom")
+                    default:
+                        fmt.Println("...")
+                        time.Sleep(50 * time.Milliseconsd)
+                }
+            }
+        }
+
+可以用sync.Mutex 来加锁解锁
+defer语句可以保证一定解锁
