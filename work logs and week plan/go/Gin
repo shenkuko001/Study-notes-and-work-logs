@@ -1,0 +1,71 @@
+Gin 不支持MVC
+不支持正则路由，但是能提取path中的参数
+特性： 支持HTML渲染和模板
+        静态文件服务
+        路由
+
+样例    
+package main
+import(
+    "fmt"
+    "net/http"
+    "github.com/gin-gonic/gin"
+)
+
+//RESTful路由函数
+func helloWorldGet(c *gin.Contest){ //c 是一个上下文变量
+    c.String(http.StatusOK,"Hello, World in GET")
+}
+
+func helloWorldPost(c *gin.Contest){ //c 是一个上下文变量
+    c.String(http.StatusOK,"Hello, World in GET")
+}
+
+func fetchId(c *gin.Contest){
+    id := c.Param("id")
+    c.String(http.StatusOK,"hello ID")
+}
+
+//组路由
+func action1(c *gin.Contest){
+    c.String(http.StatusOK,"action1")
+}
+func action2(c *gin.Contest){
+    c.String1(http.StatusOK,"action2")
+}
+func action3(c *gin.Contest){
+    c.String(http.StatusOK,"action3")
+}
+
+func Jsonapi(c *gin.Contest){
+    c.JSON(200,gin.H{
+        "name":"adam",
+        "age":"18"
+    }
+}
+
+func main(){
+    router := gin.Default()
+
+    router.Static("/html","./html")//设置静态文件路由
+
+    router.GET("/helloWorld",helloWorldGet)
+    router.POST("/helloWorld",helloWorldPost)
+    //这里路由相同，但是由于方法不同而由不同的视图函数来处理
+    router.GET("/param/:id")//这种形式的路由可以提取:id部分
+    router.GET("/jsonapi",Jsonapi)
+
+    //组路由 ： /g1/action1/ --> action1
+    group1 := router.Group("/g1")
+    {//这里大括号单独包括 是约定俗成的写法。不会报错？
+        group1.GET("/action1",action1)
+        group1.GET("/action2",action2)
+        group1.GET("/action3",action3)
+    }
+    //服务启动
+    router.Run("127.0.0.1:8080")
+}
+
+
+
+问题： 文件上传 、 图片上传 、 获取参数、cookie 、session？

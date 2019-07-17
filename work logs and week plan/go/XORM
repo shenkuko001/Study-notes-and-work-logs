@@ -1,0 +1,188 @@
+在xorm里，一个ORM引擎对应一个数据库。引擎通过调用xorm.NewEgine来生成
+
+import (
+    _ "github.com/go-sql-driver/mysql" //这个包即使没有用到也要引入进来，用一个匿名变量_保存
+    "github.com/go-xorm/xorm"
+)
+
+var engine *xorm.Engine
+
+func main(){
+    var err error
+    engine, err = xorm.NewEgine("mysql","root:123@/test?charset=uft8")
+}
+可以通过engine.Ping()来测试连通性，对于有些设置连接超时设置的可以起一个定期Ping的go程来保持连接。
+
+
+XORM内置了三种IMapper ：
+    SnakeMapper \ SameMapper \ GonicMapper
+    SnakeMapper是默认的，支持struct驼峰式命名，表结构为下划线命名之间的转换
+    要切换可以使用：
+        engine.SetMapper(core.SameMapper{})
+
+如果希望表名在结构体命名之后自动加前缀，而字段不加前缀，可以如下：
+
+tbMapper := core.NewPrefixMapper(core.SnakeMapper{},"prefix")
+engine.SetTableMapper(tbMapper)
+
+如果结构体拥有TableName() string的成员方法，那么此方法的返回值就是表名
+
+Column的属性定义：
+    type User struct {
+        Id int64
+        Name string `xorm::"varchar(25) notnull unique 'usr_name'"`
+    }
+
+
+
+慕课部分：
+    连接字符："用户名:密码@协议(IP:端口)/数据库名字?charset=编码"
+    example : "root:131429@tcp(127.0.0.1:3306)/mydb?charset=uft8"
+
+    type User struct {
+        Id  int64 `xorm:"not null pk autoincr"`
+        name    string
+        SysCreated  int
+        SysUpdated  int
+    }
+
+    查询多行:
+        func FindRows(){
+            list:=make([]UserInfo,0)
+            //也可以 list:=make(map[int]UserInfo),相当于django 的空数据集
+            err := engine.Cols(columns:"id","name").Where(query:"id>?",args:0).Limit(limit:10).Asc(colNames:"id","sys_created").Find(&list)
+            //这里Find 的作用是把找到的结果传给上面创建的list
+
+            if err==nil{
+                fmt.Printf(format:"%v\n",list)
+            } else {
+                log.Fatal("error")
+            }
+        }
+
+    执行原生SQL
+        func execute(){
+                sql := `INSERT INTO user_info values(NULL,'name',0,0)` //注意由于id是自增的，所以用NULL 就行了
+            affected, err := engine.Exec(sql)
+            if err!= nil{
+                log.Fatal(v:"execute error",err)
+            } else {
+                id, _ := affected.LastInsertId()
+                rows, _ :=affected.RowsAffected()
+                fmt.Println(a:"id = ",id,"rows:",rows)
+            }
+        }
+
+    使用query 查询
+        func query(){
+            sql := "SELECT * FROM user"
+            results, err := engine.Query(sql)
+            if err!=nil{
+                log.Fatal(“query”,sql,err)
+                return 
+            }
+            total := len(results)
+            if total== 0{
+                fmt.Println("WITH NO DATA RETURNED)
+            }else {
+                for i,data := range results{
+                    fmt.Printf(i,data)
+                }
+            }
+            
+        }
+
+
+
+
+    使用orm执行插入：
+        func ormInsert(){
+            user:=&User{
+                Id: 0,
+                Name: "adam",
+                SysCreated: 0,
+                SysUpdated: 0,
+            }
+            id, err = engine.Insert(user)
+            if err != nil{
+                log.Fatal("err:",err)
+            } else {
+                fmt.Println()
+            }
+
+        }
+
+        
+    查询：
+        func ormGet{
+            user :=&User{Id:2}
+            ok, err := engine.Get(user)
+            if ok {
+                fmt.Printf("%v\n",*user)
+            } else if err != nil{
+                log.Fatal("ormGet error")
+            } else {
+                fmt.Println("id = ",user.id)
+            }
+        }
+
+        func ormGetCols(){
+            user :=&user{Id:2}
+            ok, err := engine.Cols(columns:"name").Get(user)
+            if ok{
+                fmt.Printf(user)
+            }else if err != nil{
+                log.Fatal(" err : ",err)
+            }else{
+                fmt.Println{"id:",user.Id}
+            }
+        }
+
+        func ormCount(){
+            count,err :=engine.Count(&user{Name:"adam"})
+            if err == nil{
+                fmt.Printf(count)
+            }else {
+                log.Fatal("error: ",err)
+            }
+        }
+
+        func ormUpdate(){
+            //全部更新的话
+            //user :=&user{Name:"uni name"}
+            // ok,err := engine.Update(user)
+            user := &user{name:"eve"}
+            ok, err := engine.ID(id:2).Update(user) // 只修改了name 还是把其他所有值都修改了？
+            fmt.Println(ok,err)
+        }
+
+        
+        //排除某字段
+        //与Omit 对应的还有Must ，表示该字段必须更新
+        func ormOmitUpdate(){
+            user := &user{Id:1}
+            ok, _ = engine.Get(user)
+            if ok{
+                if user.SysCreated>0{
+                    ok,_:=engine.ID(user.Id).Omit("sys_created").//可以换行？ 另外这里对创建时间不做更新
+                            Update(&user{SysCreated:0,SysUpdated:int(time.Now().Unix())})
+                }else{
+                    ok,_ := engine.ID(user.Id).Omit("sys_created").
+                            Update(&user{SysCreated:1,SysUpdated:int(time.Now().Unix())})
+                }
+            }
+        }
+
+xorm工具的使用：
+    https://github.com/go-xorm/cmd
+    先设计msyql 表，然后执行reverse命令，生成models文件
+    生成的代码可以复制到项目里直接使用
+
+
+    reverse
+        xorm reverse mysql "连接字符串" templates/goxorm/ 执行后生成model
+        ll models/ 查看表
+
+
+
+
