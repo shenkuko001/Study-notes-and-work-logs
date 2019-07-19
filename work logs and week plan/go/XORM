@@ -1,37 +1,47 @@
-在xorm里，一个ORM引擎对应一个数据库。引擎通过调用xorm.NewEgine来生成
-
-import (
-    _ "github.com/go-sql-driver/mysql" //这个包即使没有用到也要引入进来，用一个匿名变量_保存
-    "github.com/go-xorm/xorm"
-)
-
-var engine *xorm.Engine
-
-func main(){
-    var err error
-    engine, err = xorm.NewEgine("mysql","root:123@/test?charset=uft8")
-}
-可以通过engine.Ping()来测试连通性，对于有些设置连接超时设置的可以起一个定期Ping的go程来保持连接。
-
-
-XORM内置了三种IMapper ：
-    SnakeMapper \ SameMapper \ GonicMapper
-    SnakeMapper是默认的，支持struct驼峰式命名，表结构为下划线命名之间的转换
-    要切换可以使用：
-        engine.SetMapper(core.SameMapper{})
-
-如果希望表名在结构体命名之后自动加前缀，而字段不加前缀，可以如下：
-
-tbMapper := core.NewPrefixMapper(core.SnakeMapper{},"prefix")
-engine.SetTableMapper(tbMapper)
-
-如果结构体拥有TableName() string的成员方法，那么此方法的返回值就是表名
-
-Column的属性定义：
-    type User struct {
-        Id int64
-        Name string `xorm::"varchar(25) notnull unique 'usr_name'"`
+杂项收录：
+    XORM支持事件钩子：主要有BeforeInsert 、 AfterInsert等等
+    func (a *Account) BeforeInsert(){
+        log.Println("insert some data")
     }
+
+
+文档部分：
+
+    在xorm里，一个ORM引擎对应一个数据库。引擎通过调用xorm.NewEgine来生成
+
+    import (
+        _ "github.com/go-sql-driver/mysql" //这个包即使没有用到也要引入进来，用一个匿名变量_保存
+        "github.com/go-xorm/xorm"
+    )
+
+    var engine *xorm.Engine
+
+    func main(){
+        var err error
+        engine, err = xorm.NewEgine("mysql","root:123@/test?charset=uft8")
+    }
+    可以通过engine.Ping()来测试连通性，对于有些设置连接超时设置的可以起一个定期Ping的go程来保持连接。
+
+
+    XORM内置了三种IMapper ：
+        SnakeMapper \ SameMapper \ GonicMapper
+        SnakeMapper是默认的，支持struct驼峰式命名，表结构为下划线命名之间的转换
+        ！！如果写结构体时候写成ID ，会映射失败，因为ID不符合 snakemapper驼峰命名规范。所以要写Id
+        要切换可以使用：
+            engine.SetMapper(core.SameMapper{})
+
+    如果希望表名在结构体命名之后自动加前缀，而字段不加前缀，可以如下：
+
+    tbMapper := core.NewPrefixMapper(core.SnakeMapper{},"prefix")
+    engine.SetTableMapper(tbMapper)
+
+    如果结构体拥有TableName() string的成员方法，那么此方法的返回值就是表名
+
+    Column的属性定义：
+        type User struct {
+            Id int64
+            Name string `xorm::"varchar(25) notnull unique 'usr_name'"`
+        }
 
 
 
@@ -72,6 +82,8 @@ Column的属性定义：
                 fmt.Println(a:"id = ",id,"rows:",rows)
             }
         }
+        原生的sql可以用？来占位
+        sql :="select `id` from table where `name` "
 
     使用query 查询
         func query(){

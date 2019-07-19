@@ -1,0 +1,122 @@
+用到的函数收录
+    c.PostForm("key")
+    json绑定用BindJSON(&struc) ，表单绑定用Bind(&form)
+    想要不使用中间件的话，用r:=gin.New() 来替代 r:=gin.Default()
+    r.Use(gin.Logger())
+    r.Use(gin.Recovery()) //使用中间件
+    可以一条路由使用中间件也可以群组使用中间件：
+        r.GET("/",MYmiddle(),myview)
+
+    返回异常状态用message_handler 处理
+    a := &mystruc{"adam",1} //这里a自动成为指针 
+    r *gin.Engine 
+    r :=gin.Default()
+    r.GET("/",func(c *gin.Context{
+        c.Redirect(http.StatusMovedPermanently,"/main")
+    }))
+    r.Static(relativepath:"static",root:"./static/static")
+    r.StaticFile(relativepath:"/main",filepath:"./static/index.html")
+
+    GetLock 哪里来的自己写的吗？
+
+    time.Now().Unix()   time.Minute time.Second
+    sha256.Sum256([]byte()) //import "crypto/sha256" 密码加密
+    errors.New("新的错误") //这个errors是自己写的还是标准库？
+    logger 的使用？
+    c.Get() //有什么用
+
+    c.GetHeader(key: "Authorization") // 获取头部的token
+    c.Set(key:"loginUser",sysUser) //设置头部还是？ 这部分是放在哪里
+    ginutil.Int64Param(c,key:"id") //这个是自己写的工具吗？解析post参数还是get参数
+    是不是和c.Param("id") 没区别。。
+    ginutil.GetIntQuery(c,key:"size",default: 10) 
+
+
+    util.NewPager() 什么用
+
+    go-cache
+        TokenCache = cache.New(10*time.Minute,10*time.Second)
+
+    go.uuid
+        uid:=uuid.NewV4() //生成uuid
+        token :=base64.StdEncoding.EncodeToString([]byte(fmt.Sprint(uid)))
+        sysUser.AccessToken = token
+        TokenCache.Set(token,sysUser,cahe.DefaultExpiration)
+        缓存是存在本机吗？
+
+
+    string_util
+
+问题：
+    好像没有看到注册认证中间件。
+    
+    为什么没看到xorm.engine的链接字符串？
+    Go并发安全相关看一下
+    前面的证书验证是做什么的？
+    放在Auth函数以下的都要授权？以上的不用授权？实现原理是？    
+    *xorm的事务和回滚。 重要 session.commit session.rollback
+    fmt.Sprint(uid) 和直接把uid 作为参数传入有什么区别？
+
+
+    看到Authorize 返回一个gin.HandlerFunc 这个干嘛的？ 中间件？
+
+    讲解一下sys_user_handler 下面 Authorization的逻辑
+        c.Next()  c.Abort()
+
+    int 和int64 区别？
+    longUserTmp := loginUser.(*model.SysUser)  //这里.后面又进行调用是什么意思
+
+    userlogin 部分 sysUser是怎么获取post过来的参数的？
+    
+    如果根据条件可能返回string 也可能返回int 那函数定义时候怎么写？
+    golang中的bytes对象怎么使用
+    logger模块的使用
+    userlogin 部分CheckSysUserForLogin sysUser是怎么获取post过来的参数的？
+    
+
+代码写法收录：  
+    session := xorm.Newsession()
+    defer session.Close()
+    if err:=nil{
+        _ = session.Rollback()
+    }
+    if err:=session.Commit(); //这里的commit和rollback 有什么用？
+
+    RESTful
+        路由写法：
+            user := router.Group("/user")
+            user.POST("",addUser)
+            user.GET("/:id",getUser)
+            user.PATCH("",updateUser)
+            user.DELETE("/:id",deleteUser)
+
+
+    session *xorm.Session
+    ext, err := session.Table("table_name").Where(query:"tak.id=?",2).Get(&mystruc)
+
+    lock :=GetLock(fmt.Sprintf("fs_%d",id)) // 例如id 为1 ，则传入fs_1 为参数
+    lock.TryLock()
+    pager类的实现:
+        type Pager struct{
+            Page int `json:"page"
+            Size int `json:"page_size"
+            Offset int `json:"-"`
+            Total int `json:"total"`
+            List interface{} `json:"list"`
+            Next bool   `json:"next"`
+            Prev    bool    `json:"prev"`
+        }
+
+    定制中间件的写法：
+        重要： 中间件出错不能用return 而是要用c.Abort() // 可以使用c.AbortWithStatus(http.StatusNoContent)
+        注意，如果在中间件里使用goroutine的话，要使用context的副本：cCp := c.Copy()
+        func Logger() gin.HandlerFunc{
+            return func(c *gin.Context){
+                t :=time.Now()
+            c.Set("key","value") // 设置了k，v对
+            c.Next() // 这句前面的代码在request之前执行
+            latency := time.Since(t)
+            fmt.Println(latency)
+            }
+        }
+        c.Set之后可以在视图函数里使用g :=c.MustGet("content").(string)来获取

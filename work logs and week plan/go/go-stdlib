@@ -1,2 +1,0 @@
-strings:
-    strings.Split(s,sep,n) 返回s 用 sep分隔符切分n 次后的string数组
