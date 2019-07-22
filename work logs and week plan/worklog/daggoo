@@ -1,0 +1,96 @@
+今日学习：
+
+路径拼接不要使用纯字符串，用os.path.join
+找bug 善用 logger
+js 指定文件上传类型可查表
+
+
+PLSQL控制异常
+在EXCEPTION 捕捉异常
+如果不捕捉，异常会被传递到调用环境里。
+1、预定义异常
+2、非预定义异常
+3、用户定义异常
+WEHN OTHERS 
+
+
+
+SVN 提交前必须更新至最新版本，先看文件 再 看行 。
+如果提交地方不冲突就会被合并。
+在pycharm 里右键文件--subversion -- resolve text confict 来解决冲突。
+数据抽取遇到汇总函数和单列数据同时出现的情况，可以用表join一个子查询，子查询放汇总函数。
+tracert ip 用于查看目标IP连通性
+tnsping ip+端口 用于查看是否能连接目标数据库
+
+环境变量的添加
+vi ~/.bashrc
+在下面添加：
+Export  PATH="$PATH:/NEW_PATH"
+source /.bashrc
+libreoffice 转化乱码 是字体的原因
+PQLSQL 可以选中SQL 语句然后部分执行
+
+
+
+CREATE USER adam IDENTIFIED BY password
+GRANT connect , resource TO adam
+要注意oracle建表不要用保留字：number之类的
+在用plsql在测试库上建表之后 查看SQL 或者DDL 来使用脚本在生产环境里建表。注意要删除storage参数的配置。
+
+
+generated always as identity (cache 30)
+
+
+
+使用dir(obj)查看对象所有的属性和方法
+前端input 可以设置required accept ="application/pdf,application/msword" 来指定可上传的文件。
+后台接收到的文件对象可以用file_obj.content_type 来查看对象类型
+配置pycharm git
+可以使用f" sdfas d{var}"
+
+
+
+工作插件汇总：
+下拉框：select2 、 富文本编辑：summernote 、分词提取：jieba 、列表：datatable、自然语言处理：gensim、ElasticSearch
+
+mysql 的一行最多65535字节，TEXT 和BLOB 不是和普通字段一块存放的
+ORM相关内容：
+
+汇总统计的操作不要用 objects.all().count() ，这样相当于select
+以后都用values或者values_list来限定自己查的字段，不要把没用到的字段放进来，很影响效率。
+多用explain()
+包含外键的查询建议使用AppMatter.objects.values(‘project__prj_name’，‘id’)，返回的是一个
+valuequeryset 类似于字典列表。 values 可以放在任意查询集后面。
+特别注意，如果记录内字段值有为空的，values 会忽略该记录造成记录缺失。
+拓展：value_list 可以只去值而不要键key。减少数据量外键查询还可使用AppMatter.objects.select_related('project__prjname').get(pk=1)
+多对多关系用prefatch_related
+想要取最新的id 可以用AppMatter.objects.latest('id').id + 1 来获取，除了id还可以是别的最新修改字段
+查询集自动缓存，尽量重用，如果不想缓存(一次性使用的大量数据)节省内存，可以使用iterator.
+update和delete是支持批处理的，尽量不要一条条处理记录，尽量减少数据库的链接。
+model_to_dict 很方便
+多用update少用save
+使用F对象
+
+Q对象可以拼接好后再传到filter里作为参数（Q对象本质是一个字符串？？）
+q = Q(1)  |   Q(2)
+App.objects.filter(q)
+查询集可以直接使用filter
+查询日期范围可以使用__range=(start,end) #start 和 end 是datetime对象
+oracle 中的blob 对应django的long
+
+
+datatable的使用
+ajax传过来数组，在django必须实用getlist来获取，否则只能取到最后一个，并且注意ajax 过来的数组会在尾部自动带上'[ ]'字样，从post字典里取的时候要加上，
+extra + where \ select
+
+前端查看问题可以看network 
+查询集不能直接通过ajax传到前台
+django数据库对象序列化传到前台的问题？ model_to_dict
+ctrl + t 自动更新SVN 
+ctrl + r ？？
+
+
+
+而在编写代码时，通过空格键、Tab键以及回车键打出的空格，都会被HTML（超文本标记语言）自动忽略。HTML将这样的键视为空白字符，并显示为单个空白间隔
+网页上显示空格要使用&nbsp;
+

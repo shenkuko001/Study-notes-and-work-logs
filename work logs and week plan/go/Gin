@@ -1,3 +1,6 @@
+坑：
+    json 数据记得尾部不要加逗号,
+    定义struct 记得每个属性开头大写，否则c.BindJSON无法绑定
 Gin 不支持MVC
 不支持正则路由，但是能提取path中的参数
 特性： 支持HTML渲染和模板
@@ -66,6 +69,16 @@ func main(){
     router.Run("127.0.0.1:8080")
 }
 
+获取参数：
+
+    c.PostForm("key")只能获得post表单里的参数，无法通过这种形式获得数组。
+    c.Query("key") 可以获得GET方法里的参数
+    c.Param("key")可以获得URL里的参数//主要是ID
+    绑定复选框部分存疑？
+
+    可以绑定一个对象来
+
+    json会把特殊字符比如<>转化为unicode，如果想输出纯字符可以使用c.PureJSON
 
 
 问题： 文件上传 、 图片上传 、 获取参数、cookie 、session？

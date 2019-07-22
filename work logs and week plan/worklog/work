@@ -1,4 +1,7 @@
 用到的函数收录
+
+    c.Cookie("key")
+    c.Setcookie
     c.PostForm("key")
     json绑定用BindJSON(&struc) ，表单绑定用Bind(&form)
     想要不使用中间件的话，用r:=gin.New() 来替代 r:=gin.Default()
@@ -23,18 +26,10 @@
     sha256.Sum256([]byte()) //import "crypto/sha256" 密码加密
     errors.New("新的错误") //这个errors是自己写的还是标准库？
     logger 的使用？
-    c.Get() //有什么用
 
     c.GetHeader(key: "Authorization") // 获取头部的token
-    c.Set(key:"loginUser",sysUser) //设置头部还是？ 这部分是放在哪里
-    ginutil.Int64Param(c,key:"id") //这个是自己写的工具吗？解析post参数还是get参数
-    是不是和c.Param("id") 没区别。。
-    ginutil.GetIntQuery(c,key:"size",default: 10) 
 
-
-    util.NewPager() 什么用
-
-    go-cache
+    go-cache //cache 放在localstorage？？
         TokenCache = cache.New(10*time.Minute,10*time.Second)
 
     go.uuid
@@ -49,6 +44,8 @@
 
 问题：
     好像没有看到注册认证中间件。
+
+    hdl.cor() //跨域问题是怎么回事
     
     为什么没看到xorm.engine的链接字符串？
     Go并发安全相关看一下
@@ -120,3 +117,7 @@
             }
         }
         c.Set之后可以在视图函数里使用g :=c.MustGet("content").(string)来获取
+
+
+RESTFUL 
+    patch如果主键部分没有被指定，更新操作不会报错，但是不会有数据被更新。
