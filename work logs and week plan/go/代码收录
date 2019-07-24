@@ -1,3 +1,66 @@
+go 常用函数、包练习：
+    数字
+    字符串
+    时间、日期
+    正则表达式
+    文件读写
+    数据结构
+判断类型
+    reflect.TypeOf()
+
+字符操作：
+    操作均不改变来变量的值，而是新返回一个修改后的值。
+    根据空白切分字符,不限空白数量，返回字符数组
+        strings.Fields(str)
+    字符转int
+        var s = "100"
+        num, err := strconv.Atoi(s)
+    字符转Float64
+        var s2 = "100.55"
+        num2, err := strconv.ParseFloat(s,10)
+    int 转字符
+        var num =100
+        str，err := strconv.Itoa(num)
+    字符比较
+        bool1 := strings.Compare(a,b)
+    包含
+        bool2 := strings.Contains(a,b)
+    查找位置
+        int1 := strings.Index(str,'a') //不存在就返回-1
+    子串出现次数：
+        cout:= strings.Count("chinaaaaa","aa")//返回出现次数，如果sep为空，返回1+字符串长度，可以用来算字符串长度
+    替换：
+        strings.Replace(str,"a","b",-1) //替换次数小于0表示全部替换
+    去掉头尾字符,返回修改后字符
+        strings.Trim(s,"\\")
+    去掉头尾空格
+        strings.TrimSpace(s)
+    判断前后缀
+        strings.HasPrefix(s,"a")
+        strings.HasSuffix(s,"b")
+    用指定sep分割字符，返回字符数组，如果最后个元素是分隔符，那么返回的数组会有个空值。
+        strings.Split(string,sep)
+    字符串拼接,将元素为stirng的切片拼接到一切
+        strings.Join(str,",")
+    
+时间相关：
+    返回时间戳
+    time.Now().Unix() //返回的是64位整型
+    str 格式化时间
+    time.Now().Format("2006-01-02 15:04:05")//返回的是字符串
+    这个时间必须是指定的hhh，记忆方法 :612345
+    2006对应年，01对应月，02对应日以此类推
+    时间戳转str：
+        time.Unix(12321321321,0).Format(str)
+    
+    字符串转时间戳
+    t, err := time.Parse(format,string)
+
+    t, err := time.ParseDuration() // 300ms, -1.5h, 2h45m 等等参数
+    t.Seconds() //转化为秒
+    t.Add()
+
+=====================
 type Login struc{
         Name string `json:"name"`
         Password string `json:"password"`

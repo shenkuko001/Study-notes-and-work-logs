@@ -1,0 +1,256 @@
+
+概览：  
+
+
+html 内部变量用{{}} 来指定
+    <div id="app">
+        {{message}}
+    </div>
+
+    var app = new Vue({
+        el:'#app',
+        data:{
+            message:'hello !'
+        }
+    })
+
+v-bind指令
+    <span v-bind:title = "message"> 
+    表示将这个节点的title特性和实例的message属性保持一致
+
+    <p v-if="seen"> </p> //如果seen被设为false则元素消失
+
+数组：
+    <ol>
+        <li v-for="todo in todos">
+            {{todo.text}}
+    </ol>
+var app4 = new Vue({
+    el:'#app-4',
+    data:{
+        todos:[
+            {text:'learn'},
+            {text:'hello'}
+        ]
+    }
+})
+//输入app4.todos.push({text:"gogogo"}) 可以添加一个元素
+
+事件监听：
+    <button v-on:click="Myfunc">
+var app5 = new Vue({
+    el:"#app5",
+    data:{},
+    methods:{Myfunc: function(){
+        this.message = 1
+    }
+})
+
+<p> {{message}}</p>
+<input v-model="message">
+v-model 实现表单输入和应用状态的双向绑定
+
+自定义组件：
+    Vue.component("com_name",{
+        props:['todo'],
+        template:"<li>{{todo.text}}</li>"
+    })
+
+========================正式===============================
+实例创建时的属性才是响应式的，后续添加的属性不是响应式的。
+如果需要响应式，需要提前预留一个属性，设置为空值
+Object.freeze(obj) 可以阻止系统跟踪变化
+
+app.$data
+app.$el //element
+app.$watch('a',function (newValue,oldValue)) //这个回调会在vm.a 变化后调用
+前缀$可区分用户定义的属性
+
+注意不要在  选项属性  和  回调  上使用箭头函数:
+    created: () ==>console.log(this.a)
+因为箭头函数没this，this会作为变量一直向上级作用域查找
+主要的生命周期：
+beforeCreate--created--beforeMount--mounted
+--beforeUpdate--updated--beforeDestory--destroyed
+
+v-once可以让属性值只改变一次
+{{}} 输出的是文本，想要输出html 代码可以使用v-html="attrs"
+注意不能使用v-html来复合模板
+
+<button v-bind:disabled="isBool">Button</button>
+如果isBool的值是null、undefined、或者false ，则disabled不会被渲染？？//存疑
+可以在{{}}内使用js表达式，但不能使用语句：
+    表达式：{{ok?'yes':'No'}} 、{{number + 1}}、{{message.split('')}}
+    语句：{{var a =1}} \ {{if(ok){return message}}}
+不能在模板表达式用访问用户定义的全局变量
+2.6新增特性：动态参数
+    <a v-on:[attr]="url">
+    []内的attr会作为js表达式进行求值，比如求得"focus"
+    那么这条语句便作为<a v-on:focus="url">
+    动态参数预期返回一个字符串，异常情况返回null，null可以用来移除绑定。
+    其他非字符串类型都会报警告。
+    空格和引号在动态参数表达式里无效，大写会被强制转化小写
+
+<form v-on:submit.prevent="OnSubmit">
+v-bind简写： <a :href="url">
+v-on 简写: <a @click="dofunc">
+
+复杂的逻辑一律使用计算属性
+{{message}} \ {{message2}}
+var vm = new Vue({
+    el:"",
+    data:{message:"hello"},
+    computed:{
+        message2: function(){
+            return this.message.split('').reverse().join('')
+            //这里this指向vm实例
+    }
+})
+计算属性的缓存基于响应式依赖。只有其改变了才会重新求值：在这里依赖是message
+如果没有响应式依赖那么每次都会不会缓存，比如直接返回Date.now()。
+是否使用缓存很会影响性能，要考虑是否使用。
+
+侦听属性使用watch
+{
+    el:"",
+    data:{},
+    watch:{}
+}
+计算属性默认只有getter，也可主动设置一个stter
+computed:{
+    fullname:{
+        get:func(){}
+    },
+        set:func(newValue){
+            ...
+        }
+}
+
+vue 在绑定class 和sytle类型时做了增强
+<div class=static v-bind:class="{active:isActive,'text-danger':hasError}"></div>
+表示active是否存在取决于isActive属性
+可以给class 传入数组
+<div v-bind:class="[{active:isActive},hasError]">
+自定义组件也可以像这样使用v-bind:class=
+
+绑定内联样式：
+    <div v-bind:style="{color:activeColor,fontSize:fontSize+'px'}">
+    但是绑定到一个样式对象通常更好：
+    <div v-bind:sytle="sytleObj">
+    data:{
+        sytleObj:{
+            color:'red',
+            fontsize:'13px'
+        }
+    }
+    同样可以使用数组语法把多个样式绑定到同一个元素上
+    <div v-bind:style="[obj1,obj2]">
+    2.3以后的版本可以绑定多个属性：
+        <div :style="{display:['-webit-box','-ms-flexbox']}">
+
+
+条件渲染：
+    <h1 v-if="type === A">Vue is awesome</h1>
+    <h1 v-else>no</h1>
+    使用template进行条件分组渲染
+    <template v-if="ok">
+        ...
+        ...
+    </template> 
+    template是不可见的包裹元素，最终渲染结果并不包括template
+
+    v-else 必须跟在v-if 后面，否则无法识别
+    vue会尽可能复用已有的元素，如果不想要复用，可以添加一个key属性
+    <input placeholder="Enter password" key="YourValue">
+    v-show用于条件性展示元素，通过display属性实现。
+    注意v-show不支持template也不支持else
+    切换多的用v-show ，切换少的用if
+    v-for 优先级比v-if高，但不推荐一块使用
+
+列表渲染：
+    <li v-for="(item,index) in items"> // items可以是数组也可以是对象
+    {{parentMessage}} -- {{index}} -- {{item.message}}
+    v-for 就地更新来渲染
+    数组的更新检测：
+        push()\pop\shift\slice\reverse\sort
+    注意key value形式的变化无法被响应式地检测到： vm.itmes[1] = 'x'
+    vm.items.length=2 //这种也检测不到
+    使用Vue.set(vm.items,indexOfItem,newValue，这种方式可以检测到变化
+
+vue不能检测对象属性的增加或者减少，对于已经创建的实例，无法添加根级的响应式属性。
+但是可以向嵌套对象添加响应式属性。！重要
+vm.$set(vm.userProfile,'age',27) \\等同于Vue.set()
+
+返回经过过滤\排序的数组
+<li v-for="n in evenNumbers">{{n}}</li>
+data:{
+    numbers:[1,2,3,4,5]
+},
+computed:{
+    evenNumbers:function(){
+        return this.numbers.filter(function (number){
+            return number %2 === 0
+        })
+    }
+}
+v-for 和v-if 在同一元素使用时候，会优先使用v-for然后再使用v-if
+自定义组件里使用v-for 的时候要使用key
+组件内容后续再看
+
+v-on监听事件触发js代码
+<button v-on:click="counter +=1">
+<p>{{counter}}</p>
+可以传参
+    <button v-on:click="say('hello')">
+
+    method:{
+        say:function(message){
+            alert(message)
+        }
+    }
+可以通过$event 来传入原生的DOM事件
+
+事件修饰符
+    v-on:submit.prevent
+
+表单绑定输入：
+    v-model 在 input textarea select 等元素上创建双向绑定
+    v-model会忽略所有表单元素的value、checked、selected初始值，而把实例的初始值作为数据来源
+    text和textarea 使用value 和input属性
+    checkbox 和radio使用checked 属性和change事件
+    select 使用value作为prop， change作为事件
+
+    在textarea使用{{text}}不会生效，应该使用v-model来替代
+
+单个复选框绑定到布尔值：
+    <input type="checkbox" id="check" v-model="checked">
+    <label for="checkbox">{{check}}</label>
+多个复选框绑定到布尔值
+    <div id='example-3'>
+        <input type="checkbox" id="jack" value="1" v-model="checkName">
+        <input type="checkbox" id="eve" value="2" v-model="checkName">
+        data:{
+            checkName:[]
+        }
+更多类型 碰到再看
+
+
+修饰符：
+    v-model.lazy
+    v-model.number //转化为number
+    v-model.trim //把两端的空白去掉
+
+
+组件基础：
+    组件的data必须是个函数
+    组件注册后才能使用，包括局部注册和全局注册。
+    通过props 向子组件传递数据：
+        Vue.component('blog-post',{
+            props:['title'],
+            template:<h3>{{title}}</h3>
+        })
+组件内容回头再看
+
+
+
+
