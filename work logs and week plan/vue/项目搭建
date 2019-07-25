@@ -1,0 +1,18 @@
+首先要安装npm、node.js
+
+npm 配置淘宝镜像：
+    npm install -g cnpm --registry=https://registry.npm.taobao.org
+安装webpack：
+    cnpm install webpack -g
+安装vue脚手架
+    npm install vue-cli -g
+在工程文件夹路径下：
+    vue init webpack-simple <prj name>
+项目依赖的安装一定要从npm中安装，不要在cnpm里，会缺少很多依赖库
+    执行npm install
+路由模块和网络请求模块可以用cnpm
+    cnpm install vue-router vue-resource --save
+运行：
+    npm run dev
+编译：
+    npm run build

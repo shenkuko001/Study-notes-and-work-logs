@@ -82,3 +82,14 @@ func main(){
 
 
 问题： 文件上传 、 图片上传 、 获取参数、cookie 、session？
+
+中间件的执行顺序 和python 装饰器的执行顺序类似：
+    两个中间件 A 和 B 顺序使用：  A1, B1 ,B2 ,A2 
+    中间件只对其后面注册的路由生效，也可以指定哪部分路由使用中间件
+三种指定方法:
+    router.Group("/").Use(M1(),M2())
+    router.Get("/",M1(),M2(),view_func)
+    r.User(M1(),M2())
+中间件报错要使用c.Abort()来阻止。 使用return 会依然往后进行。
+
+

@@ -76,6 +76,11 @@ beforeCreate--created--beforeMount--mounted
 v-once可以让属性值只改变一次
 {{}} 输出的是文本，想要输出html 代码可以使用v-html="attrs"
 注意不能使用v-html来复合模板
+模板可以使用过滤器,过滤器可以串联:
+    {{stirng | conv |conv2}}
+过滤器也可以带参数
+    {{string | filter('arg1',arg2)}}
+    
 
 <button v-bind:disabled="isBool">Button</button>
 如果isBool的值是null、undefined、或者false ，则disabled不会被渲染？？//存疑
@@ -83,6 +88,7 @@ v-once可以让属性值只改变一次
     表达式：{{ok?'yes':'No'}} 、{{number + 1}}、{{message.split('')}}
     语句：{{var a =1}} \ {{if(ok){return message}}}
 不能在模板表达式用访问用户定义的全局变量
+{{}} 花括号包起来的，不在标签的称为模板，而在标签内的无需用花括号就可引用
 2.6新增特性：动态参数
     <a v-on:[attr]="url">
     []内的attr会作为js表达式进行求值，比如求得"focus"
