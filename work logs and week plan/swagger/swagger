@@ -1,0 +1,36 @@
+
+swagger:
+    可以直接docker里跑
+    docker pull swaggerapi/swagger-editor
+    docker run -d -p 80:8080 swaggerapi/swagger-editor
+    在本地8080端口就可以使用swagger-editor了
+注意swagger里冒号后面都要先加空格
+
+主要需要设置的东西：
+swagger: "2.0"
+info:
+    version: "1.0.0"
+    titile: "prj"
+    contact: "3459@qq.com"
+host: "localhost"
+basePath: "/"
+tags:
+schemes:
+- http
+- https
+tags:
+paths:
+definitions:
+
+
+tags：
+    相当于一个资源对象，对应了definition里的一个model，在tag下进行get、post、patch、delete等操作
+    写法：
+        tags：
+            - name: "role"
+                description: "nothing"
+                externalDocs:
+                    description:"
+                    url: "www.w3cschool.com"
+
+goland 里配置使用：

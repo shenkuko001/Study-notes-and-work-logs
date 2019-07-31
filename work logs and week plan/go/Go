@@ -1,3 +1,9 @@
+go get github.com/gin-gonic/gin
+go get github.com/go-xorm/xorm
+go get github.com/go-xorm/cmd/xorm //反向生成工具
+
+go get github.com/go-sql-driver/mysql  //Mysql驱动
+
 go 的约定事项：
     源代码放在%GOPATH%/src/下面，比如 %GOPATH%/src/tanK
     这是一种约定。

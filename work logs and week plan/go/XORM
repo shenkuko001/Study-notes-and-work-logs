@@ -195,6 +195,7 @@ xorm工具的使用：
         xorm reverse mysql "连接字符串" templates/goxorm/ 执行后生成model
         ll models/ 查看表
 
-
+insert update delete 有必要写事务的回滚,并且返回nil 或者error即可
+而查找无需事务，返回nil 或者 查询结果
 
 
