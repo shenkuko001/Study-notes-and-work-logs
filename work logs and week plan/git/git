@@ -1,0 +1,25 @@
+全局配置：
+    git config --global username
+    git config --global 
+
+git init 初始化，创建主分支
+git clone git_url 克隆代码
+git clone -b branch_name git_url 克隆分支的代码
+
+git add file_name1 file_name2 把文件1,2加入暂存区
+git add . 把所有文件提交到暂存区
+
+撤销add
+
+git commit -m  提交并备注信息
+
+分支操作
+    1 先clone
+    2 和远程仓库创建关联 git remote add origin git_url
+    3 git branch -a查看分支 （本地+远程）
+    4 git branch -r 查看远程分支
+    5 *本地创建新分支并切换： git checkout -b new_branch_name
+    6 git push origin branch_name 推送
+    7 删除分支 git banch -d branch_name  删除本地分支
+    8 删除远端分支 git push origin: branch_name
+
