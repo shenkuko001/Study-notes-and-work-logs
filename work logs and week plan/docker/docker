@@ -1,0 +1,136 @@
+使用docker 一定要配置阿里云镜像加速
+DOCKER
+生产环境时建议使用HAProxy工具来代理容器访问，这样出故障的时候可以快速切换到其他容器，还可以自动重启容器
+生产环境建议定期备份主机数据，或者使用支持容错的存储系统：RAID，分布式文件系统：Ceph、HDFS
+
+ImageID用于唯一标识一个镜像文件，repository可以理解为镜像的名字，tag 用于区分不同历史版本的这个镜像文件
+镜像生成容器之后，可以用--name为这个容器取名。过程好比一个类生成一个实例。
+
+
+#练习docker本地仓库创建
+#容器互联再看一下
+#练习一下容器数据的备份和恢复。
+
+常用命令： 
+    \pull \ run \ stop \restart \ start 
+    \ inspect \ commit \ps \ images \kill
+    \ rmi \tag
+
+
+
+docker tag <id> <repo>:<tag>
+
+镜像Image是只读模板，一个镜像可以创建多个容器 container。
+镜像可以看做类，容器可以看做实例
+容器最上面那层是可读可写的
+
+docker run -p <容器port>:<本机port> -idt --name <给容器取名> -v <数据卷名称或者本地目录路径>:<容器绝对路径> centos /bin/bash
+数据卷容器：
+    docker run -it -v <数据卷路径> --name dbdata centos  创建一个容器卷
+    docker run -idt --volumes-from <数据卷容器名称> --name myname centos 使用数据卷容器
+    数据卷容器也可指定多个-v 数据卷
+
+容器数据备份和恢复：
+    备份：
+        docker run --volumes-from dbdata -v $(pwd):/backup centos tar cvf /backup/backup.tar  /dbdata
+        dbdata是之前建好的数据卷容器，pwd将当前路径和backup路径关联起来，再解压backup到宿主目录
+    恢复：
+        docker run --volumes-from dbdata -v $(pwd):/backup busybox tar xvf /backup/backup.tar
+
+创建镜像：1、基于已有的镜像进行commit 2、基于Dockerfile创建 3、本地模板导入
+
+commit ： docker commit -m "new image" -a "My docker " <docker id> <repository>
+模板导入: sudo cat xxx.tar.gz | docker import - <repo name>:<tag>
+
+载入 存储镜像：
+    docker save -o <zip name>.tar <name>:<tag>
+    docker load < <name>.tar
+
+上传镜像到官方：
+    docker push <name>:<tag>
+
+新建并启动容器
+docker run(创建并运行) 等价于 docker create（创建）  然后再 docker start（运行）
+
+这个期间除了利用镜像创建启动了容器以外，还分配了文件系统，在镜像最外层挂在可读可写层。
+并从宿主机的网桥接口中交接一个虚拟接口到容器中。
+从地址池分配了一个IP给容器。执行应用程序。执行完后容器终止。
+
+docker run -it centos /bin/bash
+这段代码： -t 让docker分配一个伪终端，绑定到容器的标准输入上；
+          -i 让容器的标准输入始终打开
+更多的时候需要让容器以守护态Daemonized 来在后台运行，使用-d参数实现
+
+获取容器输出信息 使用docker logs <id>
+停止容器的运行 : docker stop <id>
+docker ps -a -q 可以看到处于终止状态的容器，使用start可以重新启动
+
+docker run centos -idt  后台守护态运行一个容器
+docker exec -it <id> /bin/bash 来执行一个应用
+
+docker rm 命令用于删除处于终止状态的容器：
+    -f 强制终止并删除运行中的容器
+    -l 删除容器的链接，保留容器
+    -v 删除容器挂载的数据卷
+
+容器迁移：
+    使用docker export 命令将已创建的容器导出到一个文件
+    docker export c2 > <name>.tar
+    使用docker import 将文件导入称为镜像
+可以用load 导入镜像存储文件到本地镜像库，也可以用import 导入容器快照到本地镜像库。
+两者区别在于容器快照只保存快照状态而丢弃历史记录和元数据信息，而镜像存储文件记录更完整，体积更大。
+
+
+
+搭建本地私有仓库服务
+    docker run -d -p 5000:5000 registry
+    默认仓库创建在容器的/tmp/registry下
+    可以-v 指定本地路径：
+        docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry registry
+        docker tag <name>:<tag> 10.0.0.2:500/test   仓库/用户名/名字/tag
+        docker push 10.0.0.1:5000/test
+
+
+数据卷：
+    docker run -d -P --name web -v /webapp training/webapp python app.py
+    为training/webapp 镜像创建一个web容器，并创建数据卷挂载到容器的webapp目录
+    也可以指定挂载一个本地已有目录到容器中作为数据卷
+    docker run -d -P --name web -v /src/webapp:/opt/webapp training/webapp python app.py
+    这条命令加载主机的/src/webapp目录到容器的/opt/webapp目录
+    本地的路径必须是绝对路径
+    数据卷默认权限是rw。可以加:ro设置成只读
+数据卷容器：
+    如果用户需要在容器之间共享持续更新的数据，那么可以使用数据卷容器。
+
+    docker run -it -v /dbdata --name dbdata centos
+    创建一个数据卷容器dbdata，并在其中创建一个数据卷挂载到/dbdata
+
+    这时其他容器就可以共享其中数据了：
+        docker run -it --volumes-from dbdata --name db1 centos
+        docker run -it --volumes-from dbdata --name db2 centos
+        多个容器可以挂载多个数据卷，还可以从已经挂载了容器卷的容器来挂载数据卷
+
+
+-p 表示指定端口映射，-P随机映射，49000-49900里随机选端口。
+-p可以多次使用，映射多个端口
+docker port 查看当前映射端口配置
+
+使用--link 来互联容器
+docker run -d -P --name web --link db:db training/webapp python app.py
+docker 通过环境变量和/etc/hosts文件 来为容器公开连接信息
+
+Dockerfile 构建镜像
+
+FROM centos
+MAINTAINER shenkuo001 345906@email.com
+
+RUN yum install -y nginx
+
+CMD /bin/bash
+
+from 指定基础镜像
+maintainer设置作者信心
+run 执行命令
+cmd 指定运行镜像时的命令
+
+每run一次，镜像就会添加新的一层并提交
