@@ -134,3 +134,39 @@ golang 中配置swagger 使用
 swagger 可以进行接口测试
 
 断点debug 要学会用
+
+
+
+跨域问题：
+    原因：浏览器同源策略，在没有明确授权情况下，一个域下的客户端不可读写另外一个域下的资源。
+    例如黑客在自己网站内嵌银行登录页面，如果没有同源策略，就有安全问题。
+    前后端分离部署会有跨域问题。
+
+    不允许通信的情况： 同域名，不同端口； 同域名，不同协议 ； 域名和ip对应也不可通信
+    
+    跨域是浏览器功能，是否同域是通过url首部来判断的。
+
+    处理跨域：
+        1、JSONP 
+            利用script 标签的src 没有跨域限制。 只支持GET方法
+            在ajax 的datatype 写上jsonp 即可
+        2、CORS 
+            请求头
+                Origin 标明源域名
+                Access-Control-Request-Method 表明实际使用的HTTP方法
+                Access-Control-Request-Headers 告知会携带的请求头信息
+                with-credentials 跨域请求携带cookie
+            响应头
+                Access-Control-Allow-Origin 允许跨域请求的域名
+                Access-Control-Expose-Headers 允许返回的响应头列表
+                Access-Control-Max-Age 跨域请求缓存
+                Access-Control-Allow-Methods 跨域所支持的请求方法列表
+
+            客户端 按规范设置请求头即可，服务端安装相应插件，识别返回响应头。
+
+        3、NginX反向代理实现
+        
+
+ajax 请求过来的json是字符串格式，golang后端绑定的时候要做处理
+
+使用navicat 创建mysql表的时候会自动指定latin编码，要改成utf8mb4

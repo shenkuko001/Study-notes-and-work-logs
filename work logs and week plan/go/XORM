@@ -18,7 +18,7 @@
 
     func main(){
         var err error
-        engine, err = xorm.NewEgine("mysql","root:123@/test?charset=uft8")
+        engine, err := xorm.NewEngine("mysql","root:123@/test?charset=uft8")
     }
     可以通过engine.Ping()来测试连通性，对于有些设置连接超时设置的可以起一个定期Ping的go程来保持连接。
 
