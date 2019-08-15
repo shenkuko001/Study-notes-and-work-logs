@@ -170,3 +170,6 @@ swagger 可以进行接口测试
 ajax 请求过来的json是字符串格式，golang后端绑定的时候要做处理
 
 使用navicat 创建mysql表的时候会自动指定latin编码，要改成utf8mb4
+
+使用gin 设置cookie的时候 postman 看不到cookie ，原因是服务运行在127.0.0.1上，而我写了仅允许localhost。
+localhost 是域名 127.0.0.1 是ip
