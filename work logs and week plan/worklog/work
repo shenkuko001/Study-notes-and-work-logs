@@ -173,3 +173,24 @@ ajax 请求过来的json是字符串格式，golang后端绑定的时候要做�
 
 使用gin 设置cookie的时候 postman 看不到cookie ，原因是服务运行在127.0.0.1上，而我写了仅允许localhost。
 localhost 是域名 127.0.0.1 是ip
+
+ioutil.ReadDir 获取所有文件的内存地址 
+遍历后 使用f.IsDir() ,f.Name() 等方法。
+
+文件读写操作
+    f,err := os.Open(path)
+    if err!=nil{
+        fmt.Println("err",err)
+        return 
+    }
+    defer f.Close()
+    r :=bufio.NewReader(f)
+    for {
+        buf,err := r.ReadBytes('\n')
+        if err!=nil{
+            if err==io.EOF{
+                break
+            }
+        }
+        fmt.Printf(string(buf))
+    }
