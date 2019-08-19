@@ -60,12 +60,10 @@
     讲解一下sys_user_handler 下面 Authorization的逻辑
         c.Next()  c.Abort()
 
-    int 和int64 区别？
     longUserTmp := loginUser.(*model.SysUser)  //这里.后面又进行调用是什么意思
 
     userlogin 部分 sysUser是怎么获取post过来的参数的？
     
-    如果根据条件可能返回string 也可能返回int 那函数定义时候怎么写？
     golang中的bytes对象怎么使用
     logger模块的使用
     userlogin 部分CheckSysUserForLogin sysUser是怎么获取post过来的参数的？
@@ -163,9 +161,25 @@ swagger 可以进行接口测试
                 Access-Control-Allow-Methods 跨域所支持的请求方法列表
 
             客户端 按规范设置请求头即可，服务端安装相应插件，识别返回响应头。
-
         3、NginX反向代理实现
-        
+
+        在go 中使用c.HEADER("Access-Control-Request-Method",value) 来设置CORS 解决跨域问题
+
+        func cors() gin.HandlerFunc {
+            return func(c *gin.Context) {
+                method := c.Request.Method
+
+                c.Header("Access-Control-Allow-Origin", "*")
+                c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token")
+                c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+                c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+                c.Header("Access-Control-Allow-Credentials", "true")
+                if method == "OPTIONS" {
+                    c.AbortWithStatus(http.StatusNoContent)
+                }
+                c.Next()
+            }
+}
 
 ajax 请求过来的json是字符串格式，golang后端绑定的时候要做处理
 

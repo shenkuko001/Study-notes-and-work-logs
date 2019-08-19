@@ -20,7 +20,7 @@ fucn addUser(c *gin.Context){
 		return
 	}
 	c.JSON(200,gin.H{
-		"data":"true"
+		"data":"ok"
 	})
 
 }
