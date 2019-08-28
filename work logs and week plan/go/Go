@@ -461,3 +461,13 @@ func TestMytest(t *testing.T){
 }
 
 
+
+GO的继承：
+    type Father struct{
+        Name string
+        age int
+    }
+
+    type Son struct{
+        Father
+    }

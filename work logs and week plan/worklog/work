@@ -208,3 +208,6 @@ ioutil.ReadDir 获取所有文件的内存地址
         }
         fmt.Printf(string(buf))
     }
+
+
+计算耗费性能的函数可以把结果缓存起来。
