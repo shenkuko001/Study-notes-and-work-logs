@@ -16,3 +16,9 @@ npm 配置淘宝镜像：
     npm run dev
 编译：
     npm run build
+
+
+webpack 可以把小图片直接写入到js 中，可以提升效率。
+在package.json的script 下面添加：
+    "dev":"webpack-dev-server --config webpack.config.js"
+    "build":"webpack --config webpack.config.js"

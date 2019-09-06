@@ -471,3 +471,6 @@ GO的继承：
     type Son struct{
         Father
     }
+
+    创建的字典默认是nil， 需要用make(map[string]string)来初始化
+    
